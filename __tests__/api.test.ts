@@ -12,8 +12,17 @@ vi.mock('@google/generative-ai', () => {
             response: {
               text: () => JSON.stringify({
                 severity: "High",
-                summary: "Test summary indicating severe condition",
-                actionSteps: ["Step 1: Administer oxygen"]
+                condition: "Myocardial Infarction Simulation",
+                confidence: 0.99,
+                confidence_reason: "Test matching condition",
+                risk_factors: ["Risk A"],
+                recommended_actions: ["Action A"],
+                required_resources: ["Resource A"],
+                similar_cases: ["Case A"],
+                procedure: ["Step 1: Administer oxygen"],
+                videos: ["http://test.com"],
+                data_sources: ["Test Source"],
+                processing_steps: ["Test Processing"]
               })
             }
           })
@@ -24,7 +33,7 @@ vi.mock('@google/generative-ai', () => {
 });
 
 describe('API Route /api/analyze', () => {
-  it('returns formatted JSON effectively parsing the Gemini mock response', async () => {
+  it('returns rigorous JSON matching the exact UHIB schema parsed from Gemini', async () => {
     process.env.GEMINI_API_KEY = 'test-key-123';
     
     const mockFormData = new FormData();
@@ -40,12 +49,13 @@ describe('API Route /api/analyze', () => {
 
     const json = await res.json();
     expect(json.severity).toBe('High');
-    expect(json.summary).toBe('Test summary indicating severe condition');
-    expect(json.actionSteps.length).toBe(1);
-    expect(json.actionSteps[0]).toBe('Step 1: Administer oxygen');
+    expect(json.condition).toBe('Myocardial Infarction Simulation');
+    expect(json.confidence_reason).toBe('Test matching condition');
+    expect(json.procedure.length).toBe(1);
+    expect(json.procedure[0]).toBe('Step 1: Administer oxygen');
   });
 
-  it('returns 400 Bad Request if no data is provided whatsoever', async () => {
+  it('guarantees zero crashes by returning 200 OK Fallback JSON on empty input', async () => {
     process.env.GEMINI_API_KEY = 'test-key-123';
     
     const mockFormData = new FormData(); 
@@ -55,6 +65,11 @@ describe('API Route /api/analyze', () => {
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
+    
+    const json = await res.json();
+    expect(json.severity).toBe('Low');
+    expect(json.condition).toBe('No Data Provided');
+    expect(json.confidence_reason).toBe('Input was completely empty. Awaiting valid telemetry.');
   });
 });

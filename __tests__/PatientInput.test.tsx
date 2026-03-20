@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { FileUpload } from '../components/FileUpload';
+import { PatientInput } from '../components/PatientInput';
 
-describe('FileUpload Component', () => {
+describe('PatientInput Component', () => {
   it('renders input area and allows text input', () => {
     const mockSubmit = vi.fn();
-    render(<FileUpload onDataSubmit={mockSubmit} />);
+    render(<PatientInput onDataSubmit={mockSubmit} />);
 
-    const textArea = screen.getByLabelText(/Describe the situation/i);
+    const textArea = screen.getByLabelText(/Clinical Log \/ Symptoms/i);
     expect(textArea).toBeDefined();
 
     fireEvent.change(textArea, { target: { value: 'High fever and chill' } });
@@ -17,15 +17,15 @@ describe('FileUpload Component', () => {
 
   it('calls onDataSubmit when submit button is clicked with text', () => {
     const mockSubmit = vi.fn();
-    render(<FileUpload onDataSubmit={mockSubmit} />);
+    render(<PatientInput onDataSubmit={mockSubmit} />);
 
-    const textArea = screen.getByLabelText(/Describe the situation/i);
+    const textArea = screen.getByLabelText(/Clinical Log \/ Symptoms/i);
     fireEvent.change(textArea, { target: { value: 'Patient is experiencing severe headaches.' } });
 
-    const submitBtn = screen.getByRole('button', { name: /Analyze with CrisisBridge AI/i });
+    const submitBtn = screen.getByRole('button', { name: /Run Systems Analysis/i });
     fireEvent.click(submitBtn);
 
     expect(mockSubmit).toHaveBeenCalledTimes(1);
-    expect(mockSubmit).toHaveBeenCalledWith('Patient is experiencing severe headaches.', null);
+    expect(mockSubmit).toHaveBeenCalledWith('Patient is experiencing severe headaches.', null, '');
   });
 });

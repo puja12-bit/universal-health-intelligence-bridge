@@ -130,7 +130,7 @@ export default function Home() {
             {!isLoading && result && (
               <div className="space-y-6 animate-in slide-in-from-bottom-8 fade-in-0 duration-700 ease-out">
                 <TriageResult result={result} />
-                <ActionList steps={result.procedure_plan} />
+                <ActionList steps={result.procedure || result.recommended_actions || []} />
               </div>
             )}
           </div>
